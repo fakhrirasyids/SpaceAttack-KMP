@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<resources>
+    <string name="app_name">Space Attack</string>
+
+    <string name="home_start_game">Start Game</string>
+</resources>
