@@ -9,14 +9,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -31,6 +29,7 @@ import com.fakhrirasyids.spaceattack.android.ui.widgets.ScrollingStarsBackground
 import com.fakhrirasyids.spaceattack.android.utils.ComposableLifecycle
 import com.fakhrirasyids.spaceattack.android.utils.DensityConverter.asDp
 import com.fakhrirasyids.spaceattack.android.utils.DensityConverter.asPx
+import com.fakhrirasyids.spaceattack.android.utils.advanceShadow
 import dev.icerock.moko.resources.compose.fontFamilyResource
 import dev.icerock.moko.resources.compose.painterResource
 import dev.icerock.moko.resources.compose.stringResource
@@ -105,9 +104,8 @@ fun GameScreen(
                     )
                 }
                 .size(width = playerWidthDp, height = playerHeightDp)
-                .shadow(
-                    elevation = 50.dp,
-                    ambientColor = Color.White,
+                .advanceShadow(
+                    color = Color(SharedRes.colors.colorOnPrimary.getColor(context))
                 ),
             painter = painterResource(imageResource = SharedRes.images.asset_player_point),
             contentDescription = null
@@ -118,12 +116,7 @@ fun GameScreen(
             Image(
                 modifier = Modifier
                     .offset { IntOffset(bullet.x.toInt(), bullet.y.toInt()) }
-                    .size(bulletSizeDp)
-                    .shadow(
-                        elevation = 50.dp,
-                        ambientColor = Color.White,
-                        spotColor = MaterialTheme.colorScheme.primary,
-                    ),
+                    .size(bulletSizeDp),
                 painter = painterResource(
                     imageResource = SharedRes.images.asset_player_bullet_point
                 ),
@@ -137,14 +130,12 @@ fun GameScreen(
                 modifier = Modifier
                     .offset { IntOffset(enemy.position.x.toInt(), enemy.position.y.toInt()) }
                     .size(width = enemyWidthDp, height = enemyHeightDp)
-                    .shadow(
-                        elevation = 50.dp,
-                        ambientColor = if (enemy.isRed) Color(
+                    .advanceShadow(
+                        color = if (enemy.isRed) Color(
                             SharedRes.colors.primaryRed.getColor(
                                 context
                             )
                         ) else Color(SharedRes.colors.primaryGreen.getColor(context)),
-                        spotColor = MaterialTheme.colorScheme.primary,
                     ),
                 painter = painterResource(
                     imageResource = if (enemy.isRed) SharedRes.images.asset_enemy_red_one_point else SharedRes.images.asset_enemy_green_one_point
@@ -158,12 +149,7 @@ fun GameScreen(
             Image(
                 modifier = Modifier
                     .offset { IntOffset(bullet.x.toInt(), bullet.y.toInt()) }
-                    .size(bulletSizeDp)
-                    .shadow(
-                        elevation = 50.dp,
-                        ambientColor = Color(SharedRes.colors.primaryRed.getColor(context)),
-                        spotColor = MaterialTheme.colorScheme.primary,
-                    ),
+                    .size(bulletSizeDp),
                 painter = painterResource(
                     imageResource = SharedRes.images.asset_enemy_bullet_point
                 ),
@@ -174,11 +160,6 @@ fun GameScreen(
         // Score and Lives
         Row(modifier = Modifier.padding(16.dp)) {
             Text(
-                modifier = Modifier.shadow(
-                    elevation = 50.dp,
-                    ambientColor = Color.White,
-                    spotColor = MaterialTheme.colorScheme.primary,
-                ),
                 text = stringResource(SharedRes.strings.game_score, score),
                 fontSize = 12.sp,
                 fontFamily = fontFamilyResource(SharedRes.fonts.pressstart2p_regular),
@@ -187,11 +168,6 @@ fun GameScreen(
 
             Spacer(modifier = Modifier.weight(1f))
             Text(
-                modifier = Modifier.shadow(
-                    elevation = 50.dp,
-                    ambientColor = Color.White,
-                    spotColor = MaterialTheme.colorScheme.primary,
-                ),
                 text = stringResource(SharedRes.strings.game_lives, lives),
                 fontSize = 12.sp,
                 fontFamily = fontFamilyResource(SharedRes.fonts.pressstart2p_regular),

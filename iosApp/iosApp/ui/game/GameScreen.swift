@@ -13,7 +13,6 @@ import shared
 struct GameScreen: View {
     @StateObject private var viewModel = GameViewModel()
     @State private var lastDragValue: CGFloat = 0
-    @State private var isPaused: Bool = false
 
     var body: some View {
         GeometryReader { geometry in
@@ -32,6 +31,12 @@ struct GameScreen: View {
                         x: viewModel.playerPosition + (viewModel.playerWidth / 2),
                         y: geometry.size.height - viewModel.paddingToDrawPlayerX
                     )
+                    .shadow(
+                        color: Color(SharedRes.colors().colorOnPrimary.getUIColor()),
+                        radius: 10,
+                        x: 0,
+                        y: 0
+                    )
 
                 // Bullets
                 ForEach(Array(viewModel.bullets.enumerated()), id: \.offset) { index, bullet in
@@ -48,11 +53,12 @@ struct GameScreen: View {
                         .resizable()
                         .frame(width: viewModel.enemyWidth, height: viewModel.enemyHeight)
                         .position(x: enemy.position.x + (viewModel.enemyWidth / 2), y: enemy.position.y)
-                    
-                    Circle()
-                        .frame(width: 4, height: 4)
-                        .foregroundColor(.yellow)
-                        .position(x: enemy.position.x + (viewModel.enemyWidth / 2), y: enemy.position.y)
+                        .shadow(
+                            color: enemy.isRed ? Color(SharedRes.colors().primaryRed.getUIColor()) : Color(SharedRes.colors().primaryGreen.getUIColor()),
+                            radius: 10,
+                            x: 0,
+                            y: 0
+                        )
                 }
 
                 // Enemy Bullets
