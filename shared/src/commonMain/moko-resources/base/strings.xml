@@ -3,4 +3,7 @@
     <string name="app_name">Space Attack</string>
 
     <string name="home_start_game">Start Game</string>
+
+    <string name="game_score">Score: %d</string>
+    <string name="game_lives">Lives: %d</string>
 </resources>
