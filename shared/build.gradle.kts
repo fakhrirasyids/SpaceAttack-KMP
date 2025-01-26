@@ -2,7 +2,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.kotlinCocoapods)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.multiplatformResources)
 }
@@ -18,31 +17,20 @@ kotlin {
         }
     }
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
-    cocoapods {
-        summary = "Some description for the Shared Module"
-        homepage = "Link to the Shared Module homepage"
-        version = "1.0"
-        ios.deploymentTarget = "16.0"
-        podfile = project.file("../iosApp/Podfile")
-        framework {
+    listOf(
+        iosX64(),
+        iosArm64(),
+        iosSimulatorArm64()
+    ).forEach {
+        it.binaries.framework {
             baseName = "shared"
-            isStatic = false
+            isStatic = true
             export("dev.icerock.moko:resources:0.24.4")
             export("dev.icerock.moko:graphics:0.9.0")
         }
     }
 
     sourceSets {
-//        commonMain.dependencies {
-//            api(libs.bundles.moko.resources)
-//        }
-//        commonTest.dependencies {
-//            implementation(libs.kotlin.test)
-//        }
-
         val commonMain by getting {
             dependencies {
                 api(libs.bundles.moko.resources)
