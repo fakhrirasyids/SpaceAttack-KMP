@@ -2,7 +2,25 @@
 <resources>
     <string name="app_name">Space Attack</string>
 
+    <!-- Home Screen -->
     <string name="home_start_game">Start Game</string>
+    <string name="home_leaderboards">Leaderboards</string>
+    <string name="home_settings">Settings</string>
+    <string name="home_instructions">Swipe Left [&lt;] or Right [&gt;] to Move</string>
+
+    <string name="home_player_name">Player Name</string>
+    <string name="home_player_name_id">Player@%d</string>
+    <string name="home_player_name_placeholder">Fill Player Name</string>
+
+    <string name="home_game_difficulty_select">Select Difficulty</string>
+    <string name="home_game_difficulty_easy">Easy</string>
+    <string name="home_game_difficulty_hard">Hard</string>
+
+    <!-- Game Screen -->
+    <string name="game_paused">Pause</string>
+    <string name="game_resume">Resume</string>
+    <string name="game_end">End Game</string>
+    <string name="game_leave">Leave Game</string>
 
     <string name="game_score">Score: %d</string>
     <string name="game_lives">Lives: %d</string>
