@@ -23,7 +23,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -180,4 +183,36 @@ fun HomeScreen(
             }
         }
     }
+}
+
+fun Modifier.octagonBackground(
+    color: Color,
+    borderColor: Color,
+    borderWidth: Float,
+    edgeInsetFraction: Float = 0.05f, // fill with max value of 0.1F
+): Modifier = this.drawBehind {
+    val octagonPath = Path().apply {
+        val edgeInset = size.width * edgeInsetFraction
+
+        moveTo(edgeInset, 0f)
+        lineTo(size.width - edgeInset, 0f)
+        lineTo(size.width, edgeInset)
+        lineTo(size.width, size.height - edgeInset)
+        lineTo(size.width - edgeInset, size.height)
+        lineTo(edgeInset, size.height)
+        lineTo(0f, size.height - edgeInset)
+        lineTo(0f, edgeInset)
+        close()
+    }
+
+    drawPath(
+        path = octagonPath,
+        color = borderColor,
+        style = Stroke(width = borderWidth)
+    )
+
+    drawPath(
+        path = octagonPath,
+        color = color
+    )
 }

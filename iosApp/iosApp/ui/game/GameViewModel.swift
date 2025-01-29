@@ -10,7 +10,15 @@ import SwiftUI
 import Combine
 
 class GameViewModel: ObservableObject {
+    let playerName: String
+    let gameDifficulty: String
+    
     @Published var isPaused: Bool = false
+    @Published var isButtonPaused: Bool = false
+    @Published var isGameEnded: Bool = false
+    
+    @Published var playerResult: PlayerResult = PlayerResult()
+    
     @Published var playerPosition: CGFloat = 0
     @Published var bullets: [CGPoint] = []
     @Published var enemies: [Enemy] = []
@@ -31,19 +39,29 @@ class GameViewModel: ObservableObject {
     private var leftPaddingCollisionTolerance: CGFloat = 20
 
     private let playerBulletSpeed: TimeInterval = 0.3
-    private let enemyBulletSpeed: TimeInterval = 1.0
-    private let enemySpawnSpeed: TimeInterval = 1.0
+    private var enemyBulletSpeed: TimeInterval = 1.0
+    private var enemySpawnSpeed: TimeInterval = 1.0
     private var gameStarted: Bool = false
 
     private var cancellables = Set<AnyCancellable>()
 
-    init() {
+    init(playerName: String, gameDifficulty: String) {
+        self.playerName = playerName
+        self.gameDifficulty = gameDifficulty
+        
+        if self.gameDifficulty == GameDifficulty.HARD.name {
+            enemyBulletSpeed /= 1.5
+            enemySpawnSpeed /= 2
+        }
+        
         startGameLoops()
     }
 
     func movePlayer(delta: CGFloat) {
-        playerPosition = (playerPosition + delta)
-            .clamped(to: 0...(screenWidth - playerWidth))
+        if !self.isGameEnded {
+            playerPosition = (playerPosition + delta)
+                .clamped(to: 0...(screenWidth - playerWidth))
+        }
     }
 
     func startGameLoops() {
@@ -54,7 +72,7 @@ class GameViewModel: ObservableObject {
         Timer.publish(every: playerBulletSpeed, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self = self, !self.isPaused else { return }
+                guard let self = self, !(self.isPaused || self.isButtonPaused || self.isGameEnded) else { return }
                 self.bullets.append(
                     CGPoint(
                         x: (self.playerPosition + (self.playerWidth / 2)),
@@ -68,14 +86,14 @@ class GameViewModel: ObservableObject {
         Timer.publish(every: enemySpawnSpeed, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self = self, !self.isPaused else { return }
+                guard let self = self, !(self.isPaused || self.isButtonPaused || self.isGameEnded) else { return }
                 self.enemies.append(
                     Enemy(
                         position: CGPoint(
                             x: CGFloat.random(in: 0...(self.screenWidth - self.enemyWidth)),
                             y: 0
                         ),
-                        isRed: Bool.random()
+                        isRed: gameDifficulty == GameDifficulty.HARD.name
                     )
                 )
             }
@@ -85,7 +103,7 @@ class GameViewModel: ObservableObject {
         Timer.publish(every: 0.01, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
-                guard let self = self, !self.isPaused else { return }
+                guard let self = self, !(self.isPaused || self.isButtonPaused || self.isGameEnded) else { return }
                 self.updateBullets()
                 self.updateEnemies()
                 self.updateEnemyBullets()
@@ -136,7 +154,7 @@ class GameViewModel: ObservableObject {
                 let enemyRect = CGRect(x: enemy.position.x, y: enemy.position.y, width: enemyWidth, height: enemyHeight)
                 let hit = enemyRect.contains(bullet)
                 if hit {
-                    score += 1
+                    increaseScore()
                     enemies.removeAll { $0 == enemy }
                 }
                 return hit
@@ -152,7 +170,7 @@ class GameViewModel: ObservableObject {
                 height: playerHeight
             )
             let hit = playerRect.contains(bullet)
-            if hit { lives -= 1 }
+            if hit { decreaseLife() }
             return !hit
         }
 
@@ -166,16 +184,47 @@ class GameViewModel: ObservableObject {
             )
             let enemyRect = CGRect(x: enemy.position.x, y: enemy.position.y, width: enemyWidth, height: enemyHeight)
             let hit = playerRect.intersects(enemyRect)
-            if hit { lives -= 1 }
+            if hit { decreaseLife() }
             return !hit
         }
     }
     
+    private func increaseScore() {
+        if score <= 999999 {
+            score += 1
+        }
+    }
+    
+    private func decreaseLife() {
+        if lives == 1 {
+            stopGame()
+        } else {
+            lives -= 1
+        }
+    }
+    
+    public func onButtonPause() {
+        self.isButtonPaused = true
+    }
+    
+    public func onButtonResume() {
+        self.isButtonPaused = false
+    }
+    
     public func onPause() {
-        self.isPaused = true
+        if !self.isButtonPaused {
+            self.isPaused = true
+        }
     }
     
     public func onResume() {
-        self.isPaused = false
+        if !self.isButtonPaused {
+            self.isPaused = false
+        }
+    }
+    
+    public func stopGame() {
+        self.playerResult = PlayerResult(playerName: self.playerName, playerScore: self.score)
+        self.isGameEnded = true
     }
 }

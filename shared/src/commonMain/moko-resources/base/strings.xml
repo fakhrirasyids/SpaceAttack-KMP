@@ -11,6 +11,7 @@
     <string name="home_player_name">Player Name</string>
     <string name="home_player_name_id">Player@%d</string>
     <string name="home_player_name_placeholder">Fill Player Name</string>
+    <string name="home_player_name_invalid">Fill the Player Name first!</string>
 
     <string name="home_game_difficulty_select">Select Difficulty</string>
     <string name="home_game_difficulty_easy">Easy</string>
