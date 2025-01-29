@@ -37,10 +37,12 @@ android {
 }
 
 dependencies {
+    // Koin
     implementation(libs.koin.core)
     implementation(libs.koin.compose)
     implementation(libs.koin.android)
 
+    implementation(libs.androidx.navigation.compose)
     implementation(projects.shared)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)

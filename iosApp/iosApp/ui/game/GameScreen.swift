@@ -11,15 +11,23 @@ import Combine
 import shared
 
 struct GameScreen: View {
-    @StateObject private var viewModel = GameViewModel()
+    @EnvironmentObject var router: Router
+    
+    @StateObject var viewModel: GameViewModel
     @State private var lastDragValue: CGFloat = 0
+    
+    @State private var showPauseDialog: Bool = false
+    
+    init(playerName: String, gameDifficulty: String) {
+        _viewModel = StateObject(wrappedValue: GameViewModel(playerName: playerName, gameDifficulty: gameDifficulty))
+    }
 
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // Scrolling Background
+                // Scrolling Background                
                 ScrollingStarsBackground(
-                    isPaused: viewModel.isPaused,
+                    isPaused: ($viewModel.isPaused.wrappedValue || $viewModel.isButtonPaused.wrappedValue || $viewModel.isGameEnded.wrappedValue),
                     scrollSpeed: 1
                 )
             
@@ -63,7 +71,7 @@ struct GameScreen: View {
 
                 // Enemy Bullets
                 ForEach(Array(viewModel.enemyBullets.enumerated()), id: \.offset) { index, bullet in
-                    Image(resource: \.asset_enemy_bullet_point)
+                    Image(resource: (viewModel.gameDifficulty == GameDifficulty.EASY.name) ? \.asset_enemy_bullet_point_green : \.asset_enemy_bullet_point_red)
                         .resizable()
                         .frame(width: viewModel.bulletWidth, height: viewModel.bulletHeight)
                         .position(bullet)
@@ -83,6 +91,17 @@ struct GameScreen: View {
                         
                         Spacer()
                         
+                        Button(action: {
+                            viewModel.onButtonPause()
+                            showPauseDialog = true
+                        }) {
+                            Image(resource: \.icon_pause)
+                                .resizable()
+                                .frame(width: 32, height: 32)
+                        }
+                        
+                        Spacer()
+                        
                         Text(
                             String(
                                 format: SharedRes.strings().game_lives.localized(),
@@ -92,7 +111,28 @@ struct GameScreen: View {
                             .foregroundStyle(.white)
                     }
                     .padding()
+                    .padding(.top, 42)
                     Spacer()
+                }
+                
+                if showPauseDialog {
+                    GamePauseDialog(
+                        isPresented: $showPauseDialog,
+                        isDisabled: true,
+                        onResumeSelected: { viewModel.onButtonResume() },
+                        onEndGameSelected: { viewModel.stopGame() },
+                        onLeaveGameSelected: { self.router.navigateBack() }
+                    )
+                }
+                
+                if viewModel.isGameEnded {
+                    GameEndedDialog(
+                        isPresented: $viewModel.isGameEnded,
+                        isDisabled: true,
+                        playerResult: viewModel.playerResult,
+                        onLeaderboardsSelected: { self.router.navigate(to: .LEADERBOARDS) },
+                        onLeaveGameSelected: { self.router.navigateBack() }
+                    )
                 }
             }
             .onAppear {
